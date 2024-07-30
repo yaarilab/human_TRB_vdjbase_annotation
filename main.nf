@@ -66,14 +66,14 @@ params.trb_deletion.gene_usages_file = "${params.projectDir}/trbv_usage.tsv"
 params.ogrdbstats_report.chain = "TRBV"
 
 if (!params.airr_seq){params.airr_seq = ""} 
-if (!params.v_germline){params.v_germline = ""} 
+if (!params.v_germline_file){params.v_germline_file = ""} 
 if (!params.d_germline){params.d_germline = ""} 
 if (!params.j_germline){params.j_germline = ""} 
 
-Channel.fromPath(params.airr_seq, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_0_fastaFile_g_7;g_0_fastaFile_g_10;g_0_fastaFile_g_8}
-Channel.fromPath(params.v_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_1_germlineFastaFile_g_4;g_1_germlineFastaFile_g_10;g_1_germlineFastaFile_g_12;g_1_germlineFastaFile_g_11;g_1_germlineFastaFile_g_17;g_1_germlineFastaFile_g_8}
-Channel.fromPath(params.d_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_2_germlineFastaFile_g_5;g_2_germlineFastaFile_g_10;g_2_germlineFastaFile_g_25;g_2_germlineFastaFile_g_37;g_2_germlineFastaFile_g_8;g_2_germlineFastaFile_g_22}
-Channel.fromPath(params.j_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_3_germlineFastaFile_g_6;g_3_germlineFastaFile_g_10;g_3_germlineFastaFile_g_25;g_3_germlineFastaFile_g_8;g_3_germlineFastaFile_g_22}
+Channel.fromPath(params.airr_seq, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_0_fastaFile_g_7;g_0_fastaFile_g_10;g_0_fastaFile_g_8;g_0_fastaFile_g_43}
+Channel.fromPath(params.v_germline_file, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_1_germlineFastaFile_g_4;g_1_germlineFastaFile_g_10;g_1_germlineFastaFile_g_12;g_1_germlineFastaFile_g_11;g_1_germlineFastaFile_g_17;g_1_germlineFastaFile_g_8;g_1_germlineFastaFile_g_43}
+Channel.fromPath(params.d_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_2_germlineFastaFile_g_5;g_2_germlineFastaFile_g_10;g_2_germlineFastaFile_g_25;g_2_germlineFastaFile_g_37;g_2_germlineFastaFile_g_8;g_2_germlineFastaFile_g_22;g_2_germlineFastaFile_g_43}
+Channel.fromPath(params.j_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_3_germlineFastaFile_g_6;g_3_germlineFastaFile_g_10;g_3_germlineFastaFile_g_25;g_3_germlineFastaFile_g_8;g_3_germlineFastaFile_g_22;g_3_germlineFastaFile_g_43}
 
 
 process V_MakeBlastDb {
@@ -1703,6 +1703,65 @@ if (hetero_d2) {
     write.table(haplo_d2, file =  paste0("${name}","_haplo_D2.tsv"), quote = FALSE, row.names = FALSE, sep = "\t")
   }
 }
+"""
+}
+
+
+process new_meta_data {
+
+publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*json$/) "meta_data/$filename"}
+input:
+ set val(name), file(files) from g_0_fastaFile_g_43
+ set val(v_germline_name), file(v_germline_file) from g_1_germlineFastaFile_g_43
+ set val(d_germline_name), file(d_germline_file) from g_2_germlineFastaFile_g_43
+ set val(j_germline_name), file(j_germline_file) from g_3_germlineFastaFile_g_43
+
+output:
+ file "*json"  into g_43_outputFile00
+
+
+"""
+#!/usr/bin/env Rscript
+
+if (!requireNamespace("jsonlite", quietly = TRUE)) {
+  install.packages("jsonlite")
+}
+library(jsonlite)
+
+
+json_data <- list(
+  sample = list(
+    data_processing = list(
+      annotation = list(
+        aligner = list(
+          tool = "IgBLAST",
+          version = "1.22.0"
+        ),
+        aligner_reference = list(
+          aligner_reference_v = file.info("${v_germline_name}"),
+          aligner_reference_d = file.info("${d_germline_name}"),
+          aligner_reference_j = file.info("${j_germline_name}")
+        ),
+        Genotyper = list(
+          Tool = "TIgGER",
+          Version = "1.1.0"
+        ),
+        Haplotyper = list(
+          Tool = "RAbHIT",
+          Version = "0.2.7"
+        ),
+        `Single Assignment` = "true"
+      )
+    )
+  )
+)
+
+# Convert to JSON string without enclosing scalar values in arrays
+json_string <- toJSON(json_data, pretty = TRUE, auto_unbox = TRUE)
+
+# Write the JSON string to a file
+writeLines(json_string, "annotation_metadata.json")
+
 """
 }
 
