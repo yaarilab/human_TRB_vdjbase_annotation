@@ -1728,6 +1728,15 @@ if (!requireNamespace("jsonlite", quietly = TRUE)) {
 }
 library(jsonlite)
 
+convert_octmode <- function(info) {
+  info$mode <- as.character(info$mode)
+  return(info)
+}
+
+# Gather file information and convert octmode attributes
+v_info <- convert_octmode(file.info("${v_germline_name}"))
+d_info <- convert_octmode(file.info("${d_germline_name}"))
+j_info <- convert_octmode(file.info("${j_germline_name}"))
 
 json_data <- list(
   sample = list(
@@ -1738,9 +1747,9 @@ json_data <- list(
           version = "1.22.0"
         ),
         aligner_reference = list(
-          aligner_reference_v = file.info("${v_germline_name}"),
-          aligner_reference_d = file.info("${d_germline_name}"),
-          aligner_reference_j = file.info("${j_germline_name}")
+          aligner_reference_v = v_info,
+          aligner_reference_d = d_info,
+          aligner_reference_j = j_info
         ),
         Genotyper = list(
           Tool = "TIgGER",
