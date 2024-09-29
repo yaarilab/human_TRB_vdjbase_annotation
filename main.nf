@@ -1291,7 +1291,7 @@ input:
  set val(name3), file(j_germline_file) from g_25_germlineFastaFile3_g_30
 
 output:
- set val(name_igblast),file("*_db-pass.tsv") optional true  into g_30_outputFileTSV0_g_34, g_30_outputFileTSV0_g_35, g_30_outputFileTSV0_g_37, g_30_outputFileTSV0_g_40
+ set val(name_igblast),file("*_db-pass.tsv") optional true  into g_30_outputFileTSV0_g_34, g_30_outputFileTSV0_g_37, g_30_outputFileTSV0_g_40, g_30_outputFileTSV0_g_35
  set val("reference_set"), file("${reference_set}") optional true  into g_30_germlineFastaFile1_g_40
  set val(name_igblast),file("*_db-fail.tsv") optional true  into g_30_outputFileTSV22
 
@@ -1352,8 +1352,8 @@ if(igblastOut.getName().endsWith(".out")){
 
 process ogrdbstats_report {
 
-publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*pdf$/) "ogrdbstats/$filename"}
-publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*csv$/) "ogrdbstats/$filename"}
+publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*pdf$/) "ogrdbstats_third_alignment/$filename"}
+publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*csv$/) "ogrdbstats_third_alignment/$filename"}
 input:
  set val(name),file(airrFile) from g_30_outputFileTSV0_g_40
  set val(name1), file(germline_file) from g_30_germlineFastaFile1_g_40
@@ -1497,7 +1497,7 @@ write.table(geno_BV, file = paste0("${name}","_v_genotype_deletion.tsv"), quote 
 
 process trb_genotype_report {
 
-publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /outputfile$/) "genotype_report/$filename"}
+publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /${outname}_genotype.tsv$/) "genotype_report/$filename"}
 input:
  set val(name), file(airrseq) from g_30_outputFileTSV0_g_35
  set val(namev), file(genotype_v) from g_34_outputFileTSV0_g_35
@@ -1505,11 +1505,11 @@ input:
  set val(namej), file(genotype_j) from g_25_outputFileTSV5_g_35
 
 output:
- set val(name), file(outputfile)  into g_35_outputFileTSV0_g_37
+ set val(name), file("${outname}_genotype.tsv")  into g_35_outputFileTSV0_g_37
 
 script:
 	
-outputfile = name+"_genotype.tsv"
+outname = airrseq.name.substring(0, airrseq.name.indexOf("_db-pass"))
 
 """
 #!/usr/bin/env Rscript
@@ -1567,7 +1567,7 @@ geno_BJ[["Freq_by_Seq"]] <- unlist(lapply(geno_BJ[["gene"]], function(g) {
 
 geno <- rbind(geno_BV, geno_BD, geno_BJ)
 geno[["Freq_by_Clone"]] <- geno[["Freq_by_Seq"]]
-write.table(geno, file = paste0("${outputfile}"), quote = FALSE, row.names = FALSE, sep = "\t")
+write.table(geno, file = paste0("${outname}","_genotype.tsv"), quote = FALSE, row.names = F, sep = "\t")
 """
 }
 
