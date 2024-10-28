@@ -59,7 +59,7 @@ params.MakeDb_genotype.asisid = "false"
 params.MakeDb_genotype.asiscalls = "false"
 params.MakeDb_genotype.inferjunction = "false"
 params.MakeDb_genotype.partial = "false"
-params.MakeDb_novel.name_alignment = "personal"
+params.MakeDb_genotype.name_alignment = "Final"
 
 params.trb_deletion.gene_usages_file = "${params.projectDir}/trbv_usage.tsv"
 
