@@ -1282,7 +1282,7 @@ if(db_v.toString()!="" && db_d.toString()!="" && db_j.toString()!=""){
 
 process MakeDb_genotype {
 
-publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*_db-pass.tsv$/) "reads/$filename"}
+publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*_db-pass.tsv$/) "rearrangements/$filename"}
 input:
  set val(name),file(fastaFile) from g_11_germlineFastaFile2_g_30
  set val(name_igblast),file(igblastOut) from g_29_igblastOut0_g_30
