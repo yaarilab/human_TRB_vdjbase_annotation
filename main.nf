@@ -70,7 +70,7 @@ if (!params.v_germline_file){params.v_germline_file = ""}
 if (!params.d_germline){params.d_germline = ""} 
 if (!params.j_germline){params.j_germline = ""} 
 
-Channel.fromPath(params.airr_seq, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_0_fastaFile_g_7;g_0_fastaFile_g_10;g_0_fastaFile_g_8;g_0_fastaFile_g_44}
+Channel.fromPath(params.airr_seq, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_0_fastaFile_g_7;g_0_fastaFile_g_10;g_0_fastaFile_g_8}
 Channel.fromPath(params.v_germline_file, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_1_germlineFastaFile_g_4;g_1_germlineFastaFile_g_10;g_1_germlineFastaFile_g_12;g_1_germlineFastaFile_g_11;g_1_germlineFastaFile_g_17;g_1_germlineFastaFile_g_8}
 Channel.fromPath(params.d_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_2_germlineFastaFile_g_5;g_2_germlineFastaFile_g_10;g_2_germlineFastaFile_g_25;g_2_germlineFastaFile_g_37;g_2_germlineFastaFile_g_8;g_2_germlineFastaFile_g_22}
 Channel.fromPath(params.j_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_3_germlineFastaFile_g_6;g_3_germlineFastaFile_g_10;g_3_germlineFastaFile_g_25;g_3_germlineFastaFile_g_8;g_3_germlineFastaFile_g_22}
@@ -895,6 +895,8 @@ if(igblastOut.getName().endsWith(".out")){
 process trb_genotype_inference {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*v_genotype.tsv$/) "genotype/$filename"}
+publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*d_genotype.tsv$/) "genotype/$filename"}
+publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*j_genotype.tsv$/) "genotype/$filename"}
 input:
  set val(name), file(airrseq) from g_22_outputFileTSV0_g_25
  set val(namev), file(germline_v) from g_17_germlineFastaFile1_g_25
@@ -1703,62 +1705,6 @@ if (hetero_d2) {
     write.table(haplo_d2, file =  paste0("${name}","_haplo_D2.tsv"), quote = FALSE, row.names = FALSE, sep = "\t")
   }
 }
-"""
-}
-
-
-process new_meta_data {
-
-publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*json$/) "meta_data/$filename"}
-input:
- set val(name), file(files) from g_0_fastaFile_g_44
-
-output:
- file "*json"  into g_44_outputFile00
-
-
-"""
-#!/usr/bin/env Rscript
-
-if (!requireNamespace("jsonlite", quietly = TRUE)) {
-  install.packages("jsonlite")
-}
-library(jsonlite)
-
-
-json_data <- list(
-  sample = list(
-    data_processing = list(
-      annotation = list(
-        aligner = list(
-          tool = "IgBLAST",
-          version = "1.20.0"
-        ),
-        aligner_reference = list(
-          aligner_reference_v = "TRB  2022-05-16",
-          aligner_reference_d = "TRB  2022-05-16",
-          aligner_reference_j = "TRB  2022-05-16"
-        ),
-        Genotyper = list(
-          Tool = "TIgGER",
-          Version = "1.2.0"
-        ),
-        Haplotyper = list(
-          Tool = "RAbHIT",
-          Version = "0.2.0"
-        ),
-        `Single Assignment` = "true"
-      )
-    )
-  )
-)
-
-# Convert to JSON string without enclosing scalar values in arrays
-json_string <- toJSON(json_data, pretty = TRUE, auto_unbox = TRUE)
-
-# Write the JSON string to a file
-writeLines(json_string, "annotation_metadata.json")
-
 """
 }
 
