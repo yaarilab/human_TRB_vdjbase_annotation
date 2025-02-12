@@ -1601,12 +1601,12 @@ DATA[["subject"]] <- "${name}"
 
 hetero_j16 <- "TRBJ1-6" %in% geno[["gene"]]
 if (hetero_j16) {
-  hetero_j16 <- grepl(",", geno[["genotyped_alleles"]][geno[["gene"]] == "TRBJ1-6"])
+  hetero_j16 <- grepl(",", geno[["GENOTYPED_ALLELES"]][geno[["gene"]] == "TRBJ1-6"])
 }
 
 hetero_d2 <- "TRBD2" %in% geno[["gene"]]
 if (hetero_d2) {
-  hetero_d2 <- grepl(",", geno[["genotyped_alleles"]][geno[["gene"]] == "TRBD2"])
+  hetero_d2 <- grepl(",", geno[["GENOTYPED_ALLELES"]][geno[["gene"]] == "TRBD2"])
 }
 
 # Filtering
@@ -1617,7 +1617,7 @@ v_seqs <- sapply(1:nrow(DATA), function(x) substr(DATA[["sequence_alignment"]][x
 DATA[["v_mut"]] <- unlist(tigger::getMutCount(v_seqs, DATA[["v_call"]], germline_db = TRBV_GERM))
 DATA <- DATA[DATA[["v_mut"]] <= 1, ]
 
-del_genes <- geno[["gene"]][grepl("Del", geno[["genotyped_alleles"]])]
+del_genes <- geno[["gene"]][grepl("Del", geno[["GENOTYPED_ALLELES"]])]
 
 if (hetero_j16) {
   # Only rearrangements with single assignment of TRBJ1-6
