@@ -959,13 +959,13 @@ DATA_V_SA <- DATA_V_SA[!DATA_V_SA[["v_call"]] %in% undocumented_alleles_2_ignore
 
 geno_BV <- inferGenotypeBayesian(DATA_V_SA, germline_db = TRBV_GERM, find_unmutated = FALSE, novel = new_novel_df_H, v_call = 'v_call')
 names(geno_BV) <- names(geno_BV)
-geno_BV[["genotyped_alleles"]] <- apply(geno_BV[, c(2, 6:9)], 1, function(y){m <- which.max(as.numeric(y[2:5]));paste0(unlist(strsplit((y[1]), ','))[1:m], collapse = ",")})
+geno_BV[["GENOTYPED_ALLELES"]] <- apply(geno_BV[, c(2, 6:9)], 1, function(y){m <- which.max(as.numeric(y[2:5]));paste0(unlist(strsplit((y[1]), ','))[1:m], collapse = ",")})
 
 if (filter_chimera_bool) {
-  trizygous <- geno_BV[str_count(geno_BV[["genotyped_alleles"]], ",") >= 2, ]
-  trizygous <- trizygous %>% tidyr::separate_rows(genotyped_alleles, sep = ",")
-  trizygous[["full_name"]] <- paste0(trizygous[["gene"]], "*", trizygous[["genotyped_alleles"]])
-  novel_names <- trizygous[["full_name"]][grepl("_[A-Z]", trizygous[["genotyped_alleles"]])]
+  trizygous <- geno_BV[str_count(geno_BV[["GENOTYPED_ALLELES"]], ",") >= 2, ]
+  trizygous <- trizygous %>% tidyr::separate_rows(GENOTYPED_ALLELES, sep = ",")
+  trizygous[["full_name"]] <- paste0(trizygous[["gene"]], "*", trizygous[["GENOTYPED_ALLELES"]])
+  novel_names <- trizygous[["full_name"]][grepl("_[A-Z]", trizygous[["GENOTYPED_ALLELES"]])]
   
   if (length(novel_names)){
     novel_allele_mismatches <- list()
@@ -1032,7 +1032,7 @@ if (filter_chimera_bool) {
     if (length(prob_chimera)) {
       DATA_V_SA <- DATA_V_SA[!DATA_V_SA[["v_call"]] %in% prob_chimera, ]
       geno_BV <- inferGenotypeBayesian(DATA_V_SA, germline_db = TRBV_GERM, find_unmutated = FALSE, novel = new_novel_df_H, v_call = 'v_call')
-      geno_BV[["genotyped_alleles"]] <- apply(geno_BV[, c(2, 6:9)], 1, function(y){m <- which.max(as.numeric(y[2:5]));paste0(unlist(strsplit((y[1]), ','))[1:m], collapse = ",")})
+      geno_BV[["GENOTYPED_ALLELES"]] <- apply(geno_BV[, c(2, 6:9)], 1, function(y){m <- which.max(as.numeric(y[2:5]));paste0(unlist(strsplit((y[1]), ','))[1:m], collapse = ",")})
     }
   }
 }
@@ -1076,23 +1076,23 @@ DATA_D_geno[["mut_d"]] <- unlist(lapply(1:nrow(DATA_D_geno), function(i) {
 DATA_D_geno <- DATA_D_geno[DATA_D_geno[["mut_d"]] == 0, ]
 
 geno_BD <- inferGenotypeBayesian(DATA_D_geno, find_unmutated = FALSE, germline_db = TRBD_GERM, v_call = 'd_call')
-geno_BD[["genotyped_alleles"]] <- apply(geno_BD[, c(2, 6:9)], 1, function(y){m <- which.max(as.numeric(y[2:3]));paste0(unlist(strsplit((y[1]), ','))[1:m], collapse = ",")})
+geno_BD[["GENOTYPED_ALLELES"]] <- apply(geno_BD[, c(2, 6:9)], 1, function(y){m <- which.max(as.numeric(y[2:3]));paste0(unlist(strsplit((y[1]), ','))[1:m], collapse = ",")})
 
 D2_total <- nrow(DATA_D_geno[grepl("TRBD2", DATA_D_geno[["d_call"]]), ])
 D2_01_count <- nrow(DATA_D_geno[DATA_D_geno[["d_call"]] == "TRBD2*01", ])
 D2_01_freq <- D2_01_count / D2_total
 
 if (D2_01_freq < 0.2066) {
-  geno_BD[["genotyped_alleles"]][geno_BD[["gene"]] == "TRBD2"] <- "02"
+  geno_BD[["GENOTYPED_ALLELES"]][geno_BD[["gene"]] == "TRBD2"] <- "02"
 } else if (D2_01_freq > 0.8969) {
-  geno_BD[["genotyped_alleles"]][geno_BD[["gene"]] == "TRBD2"] <- "01"
-} else if (geno_BD[["genotyped_alleles"]][geno_BD[["gene"]] == "TRBD2"] == "01") {
-  geno_BD[["genotyped_alleles"]][geno_BD[["gene"]] == "TRBD2"] <- "01,02"
+  geno_BD[["GENOTYPED_ALLELES"]][geno_BD[["gene"]] == "TRBD2"] <- "01"
+} else if (geno_BD[["GENOTYPED_ALLELES"]][geno_BD[["gene"]] == "TRBD2"] == "01") {
+  geno_BD[["GENOTYPED_ALLELES"]][geno_BD[["gene"]] == "TRBD2"] <- "01,02"
 }
 
 DATA_J_SA <- DATA[!grepl(pattern = ',', DATA[["j_call"]]), ]
 geno_BJ <- inferGenotypeBayesian(DATA, germline_db = TRBJ_GERM, find_unmutated = FALSE, v_call = 'j_call')
-geno_BJ[["genotyped_alleles"]] <- apply(geno_BJ[, c(2, 6:9)], 1, function(y){m <- which.max(as.numeric(y[2:3]));paste0(unlist(strsplit((y[1]), ','))[1:m], collapse = ",")})
+geno_BJ[["GENOTYPED_ALLELES"]] <- apply(geno_BJ[, c(2, 6:9)], 1, function(y){m <- which.max(as.numeric(y[2:3]));paste0(unlist(strsplit((y[1]), ','))[1:m], collapse = ",")})
 
 
 ## Remove from TRBV_GERM irrelevant alleles
