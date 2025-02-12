@@ -62,7 +62,7 @@ params.MakeDb_genotype.inferjunction = "false"
 params.MakeDb_genotype.partial = "false"
 params.MakeDb_genotype.name_alignment = "Final"
 
-params.trb_deletion.gene_usages_file = "${params.projectDir}/trbv_"${library}"_usage.tsv"
+params.trb_deletion.gene_usages_file = "${params.projectDir}/trbv_${library}_usage.tsv"
 
 params.ogrdbstats_report.chain = "TRBV"
 
