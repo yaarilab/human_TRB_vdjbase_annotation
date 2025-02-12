@@ -241,7 +241,6 @@ partial = (partial=="true") ? "--partial" : ""
 reference_set = "reference_set_makedb_"+name_alignment+".fasta"
 
 outname = name_igblast+'_'+name_alignment
-println name_alignment
 
 if(igblastOut.getName().endsWith(".out")){
 	"""
@@ -861,7 +860,6 @@ partial = (partial=="true") ? "--partial" : ""
 reference_set = "reference_set_makedb_"+name_alignment+".fasta"
 
 outname = name_igblast+'_'+name_alignment
-println name_alignment
 
 if(igblastOut.getName().endsWith(".out")){
 	"""
@@ -895,8 +893,6 @@ if(igblastOut.getName().endsWith(".out")){
 process trb_genotype_inference {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*v_genotype.tsv$/) "genotype/$filename"}
-publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*d_genotype.tsv$/) "genotype/$filename"}
-publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*j_genotype.tsv$/) "genotype/$filename"}
 input:
  set val(name), file(airrseq) from g_22_outputFileTSV0_g_25
  set val(namev), file(germline_v) from g_17_germlineFastaFile1_g_25
@@ -1106,7 +1102,7 @@ TRBV_GERM.NEW <- TRBV_GERM[NOTGENO.IND]
 for(i in 1:nrow(geno_BV)){
   gene <- geno_BV[["gene"]][i]
   
-  alleles <- geno_BV[["genotyped_alleles"]][i]
+  alleles <- geno_BV[["GENOTYPED_ALLELES"]][i]
   alleles <- unlist(strsplit(alleles,','))
   IND <- names(TRBV_GERM) %in%  paste(gene,alleles,sep='*')
   TRBV_GERM.NEW <- c(TRBV_GERM.NEW,TRBV_GERM[IND])
@@ -1119,7 +1115,7 @@ TRBD_GERM.NEW <- TRBD_GERM[NOTGENO.IND]
 
 for(i in 1:nrow(geno_BD)){
   gene <- geno_BD[["gene"]][i]
-  alleles <- geno_BD[["genotyped_alleles"]][i]
+  alleles <- geno_BD[["GENOTYPED_ALLELES"]][i]
   alleles <- unlist(strsplit(alleles,','))
   IND <- names(TRBD_GERM) %in%  paste(gene,alleles,sep='*')
   TRBD_GERM.NEW <- c(TRBD_GERM.NEW,TRBD_GERM[IND])
@@ -1131,7 +1127,7 @@ TRBJ_GERM.NEW <- TRBJ_GERM[NOTGENO.IND]
 
 for(i in 1:nrow(geno_BJ)){
   gene <- geno_BJ[["gene"]][i]
-  alleles <- geno_BJ[["genotyped_alleles"]][i]
+  alleles <- geno_BJ[["GENOTYPED_ALLELES"]][i]
   alleles <- unlist(strsplit(alleles,','))
   IND <- names(TRBJ_GERM) %in%  paste(gene,alleles,sep='*')
   TRBJ_GERM.NEW <- c(TRBJ_GERM.NEW,TRBJ_GERM[IND])
@@ -1321,7 +1317,6 @@ partial = (partial=="true") ? "--partial" : ""
 reference_set = "reference_set_makedb_"+name_alignment+".fasta"
 
 outname = name_igblast+'_'+name_alignment
-println name_alignment
 
 if(igblastOut.getName().endsWith(".out")){
 	"""
