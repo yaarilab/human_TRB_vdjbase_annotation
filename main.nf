@@ -947,8 +947,11 @@ TRBJ_GERM <- readIgFasta("${germline_j}")
 
 DATA <- read.delim("${airrseq}", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
 
-# filter by the selected minimal constcount.
-DATA <- DATA[DATA[["consensus_count"]] >= ${min_consensus_count}, ]
+if ("consensus_count" %in% colnames(DATA)) {
+  DATA <- DATA[DATA[["consensus_count"]] >= min_consensus_count, ]
+} else {
+  print("consensus_count column not found in DATA")
+}
 
 # filter by zero mutations over the V
 DATA[["v_seq"]] <- substr(DATA[["sequence_alignment"]], 1, sapply(DATA[["v_germline_end"]], min, max_snp_position)) 
