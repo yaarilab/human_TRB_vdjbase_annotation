@@ -1438,7 +1438,13 @@ geno_BV <- read.delim("${genotype_v}", header = TRUE, sep = "\t", stringsAsFacto
 
 DATA <- read.delim("${airrseq}", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
 
-DATA <- DATA[DATA[["consensus_count"]] >= ${min_consensus_count}, ]
+#DATA <- DATA[DATA[["consensus_count"]] >= ${min_consensus_count}, ]
+
+if ("consensus_count" %in% colnames(DATA)) {
+  DATA <- DATA[DATA[["consensus_count"]] >= ${min_consensus_count}, ]
+} else {
+  print("consensus_count column not found in DATA")
+}
 
 cutoff <- 0.0005
 p_val_cutoff <- 0.001
