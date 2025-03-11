@@ -948,7 +948,7 @@ TRBJ_GERM <- readIgFasta("${germline_j}")
 DATA <- read.delim("${airrseq}", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
 
 if ("consensus_count" %in% colnames(DATA)) {
-  DATA <- DATA[DATA[["consensus_count"]] >= min_consensus_count, ]
+  DATA <- DATA[DATA[["consensus_count"]] >= ${min_consensus_count}, ]
 } else {
   print("consensus_count column not found in DATA")
 }
