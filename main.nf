@@ -390,18 +390,6 @@ data[["v_start"]] <- stringi::stri_locate(data[["sequence_alignment"]],regex = "
 data[["v_seq"]] <- sapply(1:nrow(data),function(i) substr(data[["sequence_alignment"]][i],1,data[["v_germline_end"]][i]))
 
 # get the mutation count in region for each sequence
-#data[["v_mut"]] <- sapply(1:nrow(data), function(i){
-#  allele <- data[["v_call"]][i]
-#  # get the first call
-#  allele <- strsplit(allele, ",", fixed = T)[[1]][1]
-#  # get the mutated positions
-#  idx <- piglet::allele_diff(germline[[allele]], data[["v_seq"]][i])
-#  # find the minimal v start position + 5, and only consider mutation above it
-#  v_min <- min(data[["v_start"]][grep(allele, data[["v_call"]],fixed=T)])+5
-#  # sum the number of mutation and check if below or equal to 3.
-#  sum(idx>v_min & idx<=316)<=3;
-#})
-
 data[["v_mut"]] <- sapply(1:nrow(data),function(j){
 	x <- c(data[['sequence_alignment']][j], data[['germline_alignment_d_mask']][j])
 	allele_diff(x)
