@@ -72,7 +72,7 @@ if (!params.d_germline){params.d_germline = ""}
 if (!params.j_germline){params.j_germline = ""} 
 
 Channel.fromPath(params.airr_seq, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_0_fastaFile_g_7;g_0_fastaFile_g_10;g_0_fastaFile_g_8;g_0_fastaFile_g_43}
-Channel.fromPath(params.v_germline_file, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_1_germlineFastaFile_g_4;g_1_germlineFastaFile_g_10;g_1_germlineFastaFile_g_12;g_1_germlineFastaFile_g_11;g_1_germlineFastaFile_g_17;g_1_germlineFastaFile_g_8}
+Channel.fromPath(params.v_germline_file, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_1_germlineFastaFile_g_4;g_1_germlineFastaFile_g_10;g_1_germlineFastaFile_g_12;g_1_germlineFastaFile_g_17;g_1_germlineFastaFile_g_8;g_1_germlineFastaFile_g_11}
 Channel.fromPath(params.d_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_2_germlineFastaFile_g_5;g_2_germlineFastaFile_g_10;g_2_germlineFastaFile_g_25;g_2_germlineFastaFile_g_37;g_2_germlineFastaFile_g_8;g_2_germlineFastaFile_g_22}
 Channel.fromPath(params.j_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_3_germlineFastaFile_g_6;g_3_germlineFastaFile_g_10;g_3_germlineFastaFile_g_25;g_3_germlineFastaFile_g_8;g_3_germlineFastaFile_g_22}
 
@@ -328,18 +328,15 @@ germline <- tigger::readIgFasta("${v_germline_file}")
 # get the v start and sequence
 data[["v_start"]] <- stringi::stri_locate(data[["sequence_alignment"]],regex = "[ATCG]")
 data[["v_seq"]] <- sapply(1:nrow(data),function(i) substr(data[["sequence_alignment"]][i],1,data[["v_germline_end"]][i]))
+
 # get the mutation count in region for each sequence
-data[["v_mut"]] <- sapply(1:nrow(data), function(i){
-  allele <- data[["v_call"]][i]
-  # get the first call
+data[["v_mut"]] <- mapply(function(allele, v_seq, v_start) {
   allele <- strsplit(allele, ",", fixed = T)[[1]][1]
-  # get the mutated positions
-  idx <- piglet::allele_diff(germline[[allele]], data[["v_seq"]][i])
-  # find the minimal v start position + 5, and only consider mutation above it
-  v_min <- min(data[["v_start"]][grep(allele, data[["v_call"]],fixed=T)])+5
-  # sum the number of mutation and check if below or equal to 3.
-  sum(idx>v_min & idx<=316)<=3;
-})
+  idx <- piglet::allele_diff(germline[[allele]], v_seq)
+  v_min <- min(v_start[grep(allele, data[["v_call"]], fixed = T)]) + 5
+  sum(idx > v_min & idx <= 316) <= 3;
+}, data[["v_call"]], data[["v_seq"]], data[["v_start"]])
+
 # filter the data
 data_filter <- data[data[["v_mut"]],]
 
@@ -368,7 +365,6 @@ for (seq_id in data_igdiscover[["sequence_id"]]) {
 }
 
 ## write both tables
-
 write.table(data, paste0("${name}", "_makedb-pass_mut.tsv"), sep = "\t")
 write.table(data_igdiscover, paste0("${name}", "_igdiscover-pass_mut.tsv"), sep = "\t")
 
