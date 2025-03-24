@@ -318,9 +318,69 @@ output:
 
 script:
 """
-#!/usr/bin/env Rscript
+
+src <- 
+"#include <Rcpp.h>
+using namespace Rcpp;
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <unordered_set>
+
+// [[Rcpp::export]]
+
+int allele_diff(std::vector<std::string> germs) {
+    std::vector<std::vector<char>> germs_m;
+    for (const std::string& germ : germs) {
+        germs_m.push_back(std::vector<char>(germ.begin(), germ.end()));
+    }
+
+    int max_length = 0;
+    for (const auto& germ : germs_m) {
+        max_length = std::max(max_length, static_cast<int>(germ.size()));
+    }
+
+    for (auto& germ : germs_m) {
+        germ.resize(max_length, '.'); // Pad with '.' to make all germs equal length
+    }
+
+    auto setdiff_mat = [](const std::vector<char>& x) -> int {
+        std::unordered_set<char> unique_chars(x.begin(), x.end());
+        std::unordered_set<char> filter_chars = { '.', 'N', '-' };
+        int diff_count = 0;
+        for (const char& c : unique_chars) {
+            if (filter_chars.find(c) == filter_chars.end()) {
+                diff_count++;
+            }
+        }
+        return diff_count;
+    };
+
+    std::vector<int> idx;
+    for (int i = 0; i < max_length; i++) {
+        std::vector<char> column_chars;
+        for (const auto& germ : germs_m) {
+            column_chars.push_back(germ[i]);
+        }
+        int diff_count = setdiff_mat(column_chars);
+        if (diff_count > 1) {
+            idx.push_back(i);
+        }
+    }
+
+    return idx.size();
+}"
+
+## libraries
+require(dplyr)
+library(Rcpp)
+library(ggplot2)
+sourceCpp(code = src)
+
 library(piglet)
 library(stringr)
+library(tigger)
 
 data <- read.delim("${makedb}", header=T, sep = "\t", stringsAsFactors = F)
 germline <- tigger::readIgFasta("${v_germline_file}")
@@ -330,15 +390,26 @@ data[["v_start"]] <- stringi::stri_locate(data[["sequence_alignment"]],regex = "
 data[["v_seq"]] <- sapply(1:nrow(data),function(i) substr(data[["sequence_alignment"]][i],1,data[["v_germline_end"]][i]))
 
 # get the mutation count in region for each sequence
-data[["v_mut"]] <- mapply(function(allele, v_seq, v_start) {
-  allele <- strsplit(allele, ",", fixed = T)[[1]][1]
-  idx <- piglet::allele_diff(germline[[allele]], v_seq)
-  v_min <- min(v_start[grep(allele, data[["v_call"]], fixed = T)]) + 5
-  sum(idx > v_min & idx <= 316) <= 3;
-}, data[["v_call"]], data[["v_seq"]], data[["v_start"]])
+#data[["v_mut"]] <- sapply(1:nrow(data), function(i){
+#  allele <- data[["v_call"]][i]
+#  # get the first call
+#  allele <- strsplit(allele, ",", fixed = T)[[1]][1]
+#  # get the mutated positions
+#  idx <- piglet::allele_diff(germline[[allele]], data[["v_seq"]][i])
+#  # find the minimal v start position + 5, and only consider mutation above it
+#  v_min <- min(data[["v_start"]][grep(allele, data[["v_call"]],fixed=T)])+5
+#  # sum the number of mutation and check if below or equal to 3.
+#  sum(idx>v_min & idx<=316)<=3;
+#})
+
+data[["v_mut"]] <- sapply(1:nrow(data),function(j){
+	x <- c(data[['sequence_alignment']][j], data[['germline_alignment_d_mask']][j])
+	allele_diff(x)
+})
 
 # filter the data
-data_filter <- data[data[["v_mut"]],]
+data <- data[data[["v_mut"]] == 0, ]
+#data_filter <- data[data[["v_mut"]],]
 
 # read igdiscover data
 data_igdiscover <- read.delim("${igdiscover}", header=T, sep = "\t", stringsAsFactors = F)
