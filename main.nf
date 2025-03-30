@@ -318,7 +318,7 @@ output:
 
 script:
 """
-
+#!/usr/bin/env Rscript
 src <- 
 "#include <Rcpp.h>
 using namespace Rcpp;
