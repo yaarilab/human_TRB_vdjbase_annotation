@@ -468,12 +468,12 @@ data <- data %>%
   )
 
 # Create sequence names
-seq.names <- paste0("sequence_id=", data$sequence_id, "|consensus_count=", data$consensus_count, "|duplicate_count=", data$duplicate_count)
+seq.names <- paste0("sequence_id=", data[["sequence_id"]], "|consensus_count=", data[["consensus_count"]], "|duplicate_count=", data[["duplicate_count"]])
 seq.names <- gsub('sequence_id=', '', seq.names, fixed = TRUE)
 
 
 # Write to FASTA
-tigger::writeFasta(setNames(as.list(data$sequence), seq.names), file = paste0("${name}", "_collapsed.fasta"))
+tigger::writeFasta(setNames(as.list(data[["sequence"]]), seq.names), file = paste0("${name}", "_collapsed.fasta"))
 
 """
 }
