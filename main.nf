@@ -452,9 +452,9 @@ if (!"consensus_count" %in% names(data)) {
 }
 
 # Remove dots in sequence_alignment
-data <- data %>%
-  select(sequence, sequence_alignment, sequence_id, consensus_count, duplicate_count) %>%
-  mutate(sequence_alignment = gsub("\\.", "", sequence_alignment, fixed = TRUE))
+data <- data %>% select(sequence, sequence_alignment, sequence_id,  consensus_count, duplicate_count)
+data[["sequence_alignment"]] <- gsub(".", "", data[["sequence_alignment"]], fixed = TRUE)
+
 
 # Use dplyr to collapse identical sequences
 data <- data %>%
