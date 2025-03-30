@@ -423,63 +423,57 @@ for (seq_id in data_igdiscover[["sequence_id"]]) {
   ig_ind <- ig_ind + 1
 }
 
+data["v_mut"] <- ifelse(data["v_mut"] == 0, TRUE, FALSE)
+
 ## write both tables
 write.table(data, paste0("${name}", "_makedb-pass_mut.tsv"), sep = "\t")
 write.table(data_igdiscover, paste0("${name}", "_igdiscover-pass_mut.tsv"), sep = "\t")
 
-# collapse identical sequences
+#######################################################
 library(dplyr)
 
+# Ensure consensus_count and duplicate_count are correctly initialized
 if (!"consensus_count" %in% names(data)) {
   if ("reads" %in% names(data)) {
     if ("templates" %in% names(data)) {
-      data[["templates"]][!unlist(lapply(data[["templates"]], is.integer))] <- 1
-      data[["reads"]][!unlist(lapply(data[["reads"]], is.integer))] <- data[["templates"]][!unlist(lapply(data[["reads"]], is.integer))]
+      data[["templates"]][!sapply(data[["templates"]], is.integer)] <- 1
+      data[["reads"]][!sapply(data[["reads"]], is.integer)] <- data[["templates"]][!sapply(data[["reads"]], is.integer)]
     } else {
-      data[["reads"]][!unlist(lapply(data[["reads"]], is.integer))] <- 1
+      data[["reads"]][!sapply(data[["reads"]], is.integer)] <- 1
       data[["templates"]] <- 1
     }
-    data[["consensus_count"]] <- data[["reads"]]
-    data[["duplicate_count"]] <- data[["templates"]]
+    data <- data %>% mutate(consensus_count = reads, duplicate_count = templates)
   } else {
-    data[["consensus_count"]] <- 1
-    data[["duplicate_count"]] <- 1
+    data <- data %>% mutate(consensus_count = 1, duplicate_count = 1)
   }
 } else {
-  data[["duplicate_count"]][!unlist(lapply(data[["duplicate_count"]], is.integer))] <- 1
-  data[["consensus_count"]][!unlist(lapply(data[["consensus_count"]], is.integer))] <- data[["duplicate_count"]][!unlist(lapply(data[["consensus_count"]], is.integer))]
+  data[["duplicate_count"]][!sapply(data[["duplicate_count"]], is.integer)] <- 1
+  data[["consensus_count"]][!sapply(data[["consensus_count"]], is.integer)] <- data[["duplicate_count"]][!sapply(data[["consensus_count"]], is.integer)]
 }
 
-data <- data %>% select(sequence, sequence_alignment, sequence_id,  consensus_count, duplicate_count)
-data[["sequence_alignment"]] <- gsub(".", "", data[["sequence_alignment"]], fixed = TRUE)
+# Remove dots in sequence_alignment
+data <- data %>%
+  select(sequence, sequence_alignment, sequence_id, consensus_count, duplicate_count) %>%
+  mutate(sequence_alignment = gsub("\\.", "", sequence_alignment, fixed = TRUE))
 
-vdj_seqs <- unique(data[["sequence_alignment"]])
-for (vdj_seq in vdj_seqs) {
-  vdj_indexes <- which(data[["sequence_alignment"]] == vdj_seq)
-  if (length(vdj_indexes) > 1) {
-    temp <- data[vdj_indexes, ]
-    temp[["consensus_count"]] <- as.numeric(temp[["consensus_count"]])
-    temp[["duplicate_count"]] <- as.numeric(temp[["duplicate_count"]])
-    
-    data <- data[-vdj_indexes, ]
-    
-    seq_id_ind <- which.max(temp[["consensus_count"]])
-    seq_id <- temp[["sequence_id"]][seq_id_ind]
-    seq_id_ind <- vdj_indexes[seq_id_ind]
-    sequence <- temp[["sequence"]][seq_id_ind]
-    
-    conscount <- sum(temp[["consensus_count"]])
-    dupcount <- sum(temp[["duplicate_count"]])
-    data[nrow(data) + 1, ] <- c(sequence, vdj_seq, seq_id, conscount, dupcount)
-  }
-}
+# Use dplyr to collapse identical sequences
+data <- data %>%
+  group_by(sequence_alignment) %>%
+  summarise(
+    sequence = first(sequence),
+    sequence_id = sequence_id[which.max(consensus_count)],
+    consensus_count = sum(consensus_count),
+    duplicate_count = sum(duplicate_count),
+    .groups = "drop"
+  )
 
-seq.names <- sapply(1:nrow(data), function(x){ 
-  paste0(names(data)[3:ncol(data)], rep('=', length(3:ncol(data))), data[x, 3:ncol(data)], collapse = '|')
-})
+# Create sequence names
+seq.names <- paste0("sequence_id=", data$sequence_id, "|consensus_count=", data$consensus_count, "|duplicate_count=", data$duplicate_count)
 seq.names <- gsub('sequence_id=', '', seq.names, fixed = TRUE)
 
-tigger::writeFasta(setNames(as.list(data[["sequence"]]), seq.names), file = paste0("${name}","_collapsed.fasta"))
+
+# Write to FASTA
+tigger::writeFasta(setNames(as.list(data$sequence), seq.names), file = paste0("${name}", "_collapsed.fasta"))
 
 """
 }
