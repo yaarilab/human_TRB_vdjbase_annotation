@@ -1644,6 +1644,8 @@ output:
 
 script:
 	
+outname = airrseq.name.toString().substring(0, airrFile.name.toString().indexOf("_db-pass"))
+	
 """
 #!/usr/bin/env Rscript
 
@@ -1698,7 +1700,7 @@ if (hetero_j16) {
       }
     }
     
-    write.table(haplo_j1_6, file = paste0("${name}","_haplo_J1_6.tsv"), quote = FALSE, row.names = FALSE, sep = "\t")
+    write.table(haplo_j1_6, file = paste0("${outname}","_gene-TRBJ1_6_haplotype.tsv"), quote = FALSE, row.names = FALSE, sep = "\t")
   }
 }
 
@@ -1756,7 +1758,7 @@ if (hetero_d2) {
       }
     }
     
-    write.table(haplo_d2, file =  paste0("${name}","_haplo_D2.tsv"), quote = FALSE, row.names = FALSE, sep = "\t")
+    write.table(haplo_d2, file =  paste0("${outname}","_gene-TRBD2_1_2_haplotype.tsv"), quote = FALSE, row.names = FALSE, sep = "\t")
   }
 }
 """
