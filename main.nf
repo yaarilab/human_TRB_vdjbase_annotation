@@ -494,7 +494,8 @@ consensus_threshold = params.igdiscover_novel_alleles.consensus_threshold
 threads = params.igdiscover_novel_alleles.threads
 
 """
-igdiscover discover --threads ${threads} --consensus-threshold ${consensus_threshold} --database ${v_germline_file} -o ./ ${airrFile} > ${name}_candidates_igdiscover.tsv
+awk '/^>/ {print; next} {gsub(/[.-]/, ""); print}' ${v_germline_file} > database/V.fasta
+igdiscover discover --threads ${threads} --consensus-threshold ${consensus_threshold} --database database/V.fasta -o ./ ${airrFile} > ${name}_candidates_igdiscover.tsv
 """
 
 
