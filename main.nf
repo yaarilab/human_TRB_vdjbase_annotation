@@ -1645,7 +1645,7 @@ output:
 
 script:
 	
-outname = airrseq.name.toString().substring(0, airrFile.name.toString().indexOf("_db-pass"))
+outname = airrseq.name.toString().substring(0, airrseq.name.toString().indexOf("_db-pass"))
 	
 """
 #!/usr/bin/env Rscript
