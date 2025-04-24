@@ -771,7 +771,7 @@ if (filter_chimera_bool) {
     chimeras_df[["new_name"]] <- paste0("ch", 1:nrow(chimeras_df))
     chimeras_df[["new_name"]] <- paste(chimeras_df[["gene"]], chimeras_df[["new_name"]], sep = "*")
     novel_alleles <- novel_alleles[!names(novel_alleles) %in% prob_chimera]
-    write.table(chimeras_df, file = paste0(sample_path, SAMP, "_chimeras.tsv"), quote = FALSE, row.names = FALSE, sep = "\t")
+    #write.table(chimeras_df, file = paste0(sample_path, SAMP, "_chimeras.tsv"), quote = FALSE, row.names = FALSE, sep = "\t")
     
   }
   
