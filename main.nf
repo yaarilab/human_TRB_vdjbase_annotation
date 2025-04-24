@@ -609,6 +609,7 @@ if(nrow(novel_igdiscover) > 0){
   
   novel_igdiscover <- novel_igdiscover[!is.na(novel_igdiscover[["NT_SUBSTITUTIONS"]]), ]
 }
+rows2remove <- c()
 if(nrow(novel_igdiscover) > 0){
   novel_igdiscover[["POLYMORPHISM_CALL"]] <- paste0(novel_igdiscover[["source"]], "_", novel_igdiscover[["NT_SUBSTITUTIONS"]])
   novel_igdiscover <- novel_igdiscover %>% mutate(GENE = alakazam::getGene(POLYMORPHISM_CALL, strip_d = FALSE))
@@ -627,7 +628,6 @@ if(nrow(novel_igdiscover) > 0){
   
   novel_igdiscover[["NOTE"]] <- ""
   
-  rows2remove <- c()
   max_snp_position <- 316
   for (i in 1:nrow(novel_igdiscover)){
     
