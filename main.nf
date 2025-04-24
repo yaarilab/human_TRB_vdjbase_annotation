@@ -522,6 +522,7 @@ filter_chimera = params.process_igdiscover_novel_alleles.filter_chimera
 #!/usr/bin/env Rscript
 library(seqinr)
 library(stringr)
+library(dplyr)
 
 convert_format <- function(igd,vgerm){
   if(igd==""){ return(NA)}
@@ -677,6 +678,10 @@ if(nrow(novel_igdiscover) > 0){
     }
   }
  
+}
+
+if (length(rows2remove)) {
+    novel_igdiscover <- novel_igdiscover[-rows2remove,]
 }
 
 write.table(novel_igdiscover, file = "igdiscover_novel_selected_igdiscover.tsv", sep = '\t', row.names = FALSE)
