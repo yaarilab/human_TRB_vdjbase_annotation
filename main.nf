@@ -587,7 +587,7 @@ if(nrow(novel_igdiscover) > 0){
 }
 if(nrow(novel_igdiscover) > 0){
   
-  novel_igdiscover[["MIN_V_START"]] <- sapply(1:nrow(novel_igdiscover), function(i) min(DATA[["v_start"]][grep(novel_igdiscover[["source"]][i], DATA[["v_call"]], fixed = TRUE)]) + 5)
+  novel_igdiscover[["MIN_V_START"]] <- sapply(1:nrow(novel_igdiscover), function(i) min(DATA[["v_start.start"]][grep(novel_igdiscover[["source"]][i], DATA[["v_call"]], fixed = TRUE)]) + 5)
   novel_igdiscover[["NT_SUBSTITUTIONS_OR"]] <- novel_igdiscover[["NT_SUBSTITUTIONS"]]
   novel_igdiscover[["NT_SUBSTITUTIONS"]] <- sapply(1:nrow(novel_igdiscover), function(i){
     
