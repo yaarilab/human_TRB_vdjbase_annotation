@@ -390,13 +390,19 @@ data[["v_start"]] <- stringi::stri_locate(data[["sequence_alignment"]],regex = "
 data[["v_seq"]] <- sapply(1:nrow(data),function(i) substr(data[["sequence_alignment"]][i],1,data[["v_germline_end"]][i]))
 
 # get the mutation count in region for each sequence
-data[["v_mut"]] <- sapply(1:nrow(data),function(j){
-	x <- c(data[['sequence_alignment']][j], data[['germline_alignment_d_mask']][j])
-	allele_diff(x)
+data[["v_mut"]] <- sapply(1:nrow(data), function(j){
+    v_start_pos <- data[["v_start"]][j] + 5
+    v_end_pos <- 316
+    # Cut the relevant region
+    seq_sub <- substr(data[['sequence_alignment']][j], v_start_pos, v_end_pos)
+    germ_sub <- substr(data[['germline_alignment_d_mask']][j], v_start_pos, v_end_pos)
+    x <- c(seq_sub, germ_sub)
+    allele_diff(x)
 })
 
+
 # filter the data
-data <- data[data[["v_mut"]] == 0, ]
+data <- data[data[["v_mut"]]<= 3, ]
 #data_filter <- data[data[["v_mut"]],]
 
 # read igdiscover data
@@ -423,7 +429,7 @@ for (seq_id in data_igdiscover[["sequence_id"]]) {
   ig_ind <- ig_ind + 1
 }
 
-data["v_mut"] <- ifelse(data["v_mut"] == 0, TRUE, FALSE)
+data["v_mut"] <- ifelse(data["v_mut"] <= 3, TRUE, FALSE)
 
 ## write both tables
 write.table(data, paste0("${name}", "_makedb-pass_mut.tsv"), sep = "\t")
