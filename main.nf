@@ -1438,8 +1438,8 @@ germline_file_path=\$(realpath ${germline_file})
 novel=""
 
 
-if grep -q "_[0-9]*[A-Za-z]+[0-9]+" ${v_germline_file}; then
-	awk '/^>/{f=0} \$0 ~ /_[0-9]*[A-Za-z]+[0-9]+/ {f=1} f' ${v_germline_file} > novel_sequences.fasta
+if grep -q "_" ${v_germline_file}; then
+	awk '/^>/{f=0} \$0 ~ /_/ {f=1} f' ${v_germline_file} > novel_sequences.fasta
 	novel=\$(realpath novel_sequences.fasta)
 	diff \$germline_file_path \$novel | grep '^<' | sed 's/^< //' > personal_germline.fasta
 	germline_file_path=\$(realpath personal_germline.fasta)
