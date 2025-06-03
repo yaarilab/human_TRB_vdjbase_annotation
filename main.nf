@@ -393,16 +393,17 @@ data[["v_seq"]] <- sapply(1:nrow(data),function(i) substr(data[["sequence_alignm
 data[["v_mut"]] <- sapply(1:nrow(data), function(j){
     v_start_pos <- data[["v_start"]][j] + 5
     v_end_pos <- 316
+    allele <- data[["v_call"]][j]
     # Cut the relevant region
     seq_sub <- substr(data[['sequence_alignment']][j], v_start_pos, v_end_pos)
-    germ_sub <- substr(data[['germline_alignment_d_mask']][j], v_start_pos, v_end_pos)
+    germ_sub <- substr(germline[[allele]], v_start_pos, v_end_pos)
     x <- c(seq_sub, germ_sub)
     allele_diff(x)
 })
 
 
 # filter the data
-data <- data[data[["v_mut"]]<= 3, ]
+data <- data[data[["v_mut"]] <= 3, ]
 #data_filter <- data[data[["v_mut"]],]
 
 # read igdiscover data
