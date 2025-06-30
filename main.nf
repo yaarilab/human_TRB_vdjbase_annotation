@@ -4,6 +4,7 @@ params.outdir = 'results'
 //* params.nproc =  10  //* @input @description:"number of processes cores to use"
 params.projectDir="${projectDir}"
 params.library="full"
+params.filter_chimera="false"
 
 params.IgBlastn.num_threads = params.nproc
 params.IgBlastn.ig_seqtype = "TCR"
@@ -61,6 +62,9 @@ params.MakeDb_genotype.asiscalls = "false"
 params.MakeDb_genotype.inferjunction = "false"
 params.MakeDb_genotype.partial = "false"
 params.MakeDb_genotype.name_alignment = "Final"
+
+parms.trb_genotype_inference.filter_chimera = params.filter_chimera
+parms.process_igdiscover_novel_alleles.filter_chimera = params.filter_chimera
 
 params.trb_deletion.gene_usages_file = "${params.projectDir}/trbv_${params.library}_usage.tsv"
 
