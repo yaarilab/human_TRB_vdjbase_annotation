@@ -63,8 +63,8 @@ params.MakeDb_genotype.inferjunction = "false"
 params.MakeDb_genotype.partial = "false"
 params.MakeDb_genotype.name_alignment = "Final"
 
-parms.trb_genotype_inference.filter_chimera = params.filter_chimera
-parms.process_igdiscover_novel_alleles.filter_chimera = params.filter_chimera
+params.trb_genotype_inference.filter_chimera = params.filter_chimera
+params.process_igdiscover_novel_alleles.filter_chimera = params.filter_chimera
 
 params.trb_deletion.gene_usages_file = "${params.projectDir}/trbv_${params.library}_usage.tsv"
 
